@@ -2,12 +2,14 @@ import logging
 from typing import Optional
 from dataclasses import dataclass
 from models import Transaction, Receipt, FinGuardObservation, FinGuardAction
+from openenv.core.env_server import Environment
 
 logger = logging.getLogger(__name__)
 
 
-class FinGuardEnv:
+class FinGuardEnv(Environment):
     def __init__(self):
+        super().__init__()
         self.policy_text = (
             "COMPANY EXPENSE POLICY:\n"
             "1. Maximum daily meal limit is $50.\n"
