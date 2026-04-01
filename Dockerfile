@@ -18,4 +18,4 @@ COPY . /app
 EXPOSE 7860
 
 # Entry point using uvicorn as requested (Note: OpenEnv wraps the class into an ASGI app)
-CMD ["uvicorn", "environment:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]

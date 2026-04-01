@@ -152,15 +152,3 @@ class FinGuardEnv(Environment):
         logger.info("OpenEnv standard spec verified successfully.")
         return True
 
-# Wrap the python class into a standard FastAPI ASGI application expected by Uvicorn
-from openenv.core.env_server import create_fastapi_app
-
-app = create_fastapi_app(FinGuardEnv, FinGuardAction, FinGuardObservation)
-
-@app.get("/")
-def health_check():
-    return {
-        "status": "FinGuard Audit Environment is LIVE",
-        "benchmark_score": 2.6,
-        "version": "1.0.0-Adversarial"
-    }
