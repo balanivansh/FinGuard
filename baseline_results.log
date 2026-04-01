@@ -1,0 +1,21 @@
+INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
+INFO:__main__:Auditor chose action: match for TX T001
+INFO:__main__:Step Result: Reward=1.0, Info={'msg': 'Correct Match (Non-violation)'}
+INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
+INFO:__main__:Auditor chose action: flag_missing for TX T002
+INFO:__main__:Step Result: Reward=1.0, Info={'msg': 'Correct Flag Missing'}       
+INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
+INFO:__main__:Auditor chose action: escalate for TX T003
+INFO:__main__:Step Result: Reward=0.8, Info={'msg': 'Correct Escalation for Policy Violation or Ambiguity'}
+INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
+INFO:__main__:Auditor chose action: flag_missing for TX T004
+INFO:__main__:Step Result: Reward=-1.0, Info={'msg': 'False Flag: Receipt exists or should have escalated.'}
+INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/openai/chat/completions "HTTP/1.1 200 OK"
+INFO:__main__:Auditor chose action: escalate for TX T005
+INFO:__main__:Step Result: Reward=0.8, Info={'msg': 'Correct Escalation for Policy Violation or Ambiguity'}
+Final Score: 2.6
+TX: T001 | Action: match | Reward: 1.0 | Note: Correct Match (Non-violation)      
+TX: T002 | Action: flag_missing | Reward: 1.0 | Note: Correct Flag Missing        
+TX: T003 | Action: escalate | Reward: 0.8 | Note: Correct Escalation for Policy Violation or Ambiguity
+TX: T004 | Action: flag_missing | Reward: -1.0 | Note: False Flag: Receipt exists or should have escalated.
+TX: T005 | Action: escalate | Reward: 0.8 | Note: Correct Escalation for Policy Violation or Ambiguity

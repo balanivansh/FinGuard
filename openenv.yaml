@@ -1,0 +1,6 @@
+spec_version: "1"
+name: "finguard-audit-env"
+type: "python"
+runtime: "python@3.10"
+app: "environment:FinGuardEnv"
+port: 7860
