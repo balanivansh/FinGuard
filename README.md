@@ -32,3 +32,4 @@ Agents must output strict structured JSON corresponding to the `FinGuardAction` 
 ## Baseline Score 
 A test executing against the `gemini-3-flash-preview` model yielded the following baseline validation:
 **Final Simulated Score: 4.4 / 5.0**
+ 
