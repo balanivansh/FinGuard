@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finguard-audit-agent"
+version = "1.0.0"
+description = "FinGuard Audit Environment for OpenEnv"
+authors = [
+    {name = "Vansh Balani"}
+]
+dependencies = [
+    "openenv-core",
+    "pydantic",
+    "fastapi",
+    "uvicorn"
+]
