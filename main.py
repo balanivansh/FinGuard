@@ -8,8 +8,5 @@ logger = logging.getLogger(__name__)
 
 logger.info("Initializing FinGuard environment backend via OpenEnv ASGI wrapper...")
 
-# Initialize the bare python environment
-env = FinGuardEnv()
-
 # Wrap the python class into a standard FastAPI ASGI application expected by Uvicorn
-app = create_fastapi_app(env, FinGuardAction, FinGuardObservation)
+app = create_fastapi_app(FinGuardEnv, FinGuardAction, FinGuardObservation)
