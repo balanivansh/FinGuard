@@ -22,7 +22,7 @@ class FinGuardEnv:
         self.done = False
         self.info = {}
         
-    def reset(self, *args, **kwargs) -> FinGuardObservation:
+    def reset(self, *args, **kwargs):
         """Initialize the messy state for a new episode."""
         # Simple hardcoded dummy scenario fulfilling basic Easy/Medium/Hard requirements
         self.all_receipts = [
@@ -51,15 +51,15 @@ class FinGuardEnv:
         self.reward = 0.0
         self.done = False
         self.info = {"msg": "Environment reset"}
-        return self.state()
+        return self.state(), self.info
         
-    def step(self, action: FinGuardAction, *args, **kwargs) -> FinGuardObservation:
+    def step(self, action: FinGuardAction, *args, **kwargs):
         """Process action, calculate partial rewards, update state."""
         if self.done or not self.pending_transactions:
             self.reward = 0.0
             self.done = True
             self.info = {"error": "Episode already finished"}
-            return self.state()
+            return self.state(), self.reward, self.done, False, self.info
             
         current_tx = self.pending_transactions[0]
         
@@ -109,7 +109,7 @@ class FinGuardEnv:
         if len(self.pending_transactions) == 0:
             self.done = True
             
-        return self.state()
+        return self.state(), self.reward, self.done, False, self.info
         
     def state(self) -> FinGuardObservation:
         """Returns the current observation payload."""
