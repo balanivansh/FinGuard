@@ -25,6 +25,8 @@ class FinGuardObservation(BaseModel):
     policy_text: str = Field("", description="The company expense policy.")
     transactions_remaining: int = Field(0, description="Number of transactions left to audit.")
     done: bool = Field(False, description="Whether the audit session is complete.")
+    reward: float = Field(0.0, description="Local step reward.")
+    info: dict = Field(default_factory=dict, description="Metadata and string messages.")
 
 class FinGuardAction(BaseModel):
     action_type: Literal["match", "flag_missing", "escalate"] = Field(description="The action to take on the current transaction.")

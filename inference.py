@@ -88,13 +88,13 @@ def main():
             
             # Step the environment
             observation = env.step(action)
-            logger.info(f"Step Result: Reward={env.reward}, Info={env.info}")
+            logger.info(f"Step Result: Reward={observation.reward}, Info={observation.info}")
             
             action_log.append({
                 "transaction_id": action.transaction_id,
                 "action": action.action_type,
-                "reward": env.reward,
-                "info": env.info
+                "reward": observation.reward,
+                "info": observation.info
             })
 
         except Exception as e:

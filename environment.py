@@ -133,7 +133,9 @@ class FinGuardEnv(Environment):
             list_of_available_receipts=self.all_receipts,
             policy_text=self.policy_text,
             transactions_remaining=len(self.pending_transactions),
-            done=self.done
+            done=self.done,
+            reward=getattr(self, 'reward', 0.0),
+            info=getattr(self, 'info', {})
         )
         
     def verify_spec(self) -> bool:
