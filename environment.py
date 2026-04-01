@@ -53,7 +53,7 @@ class FinGuardEnv(Environment):
         self.reward = 0.0
         self.done = False
         self.info = {"msg": "Environment reset"}
-        return self.state(), self.info
+        return self.state()
         
     def step(self, action: FinGuardAction, *args, **kwargs):
         """Process action, calculate partial rewards, update state."""
@@ -61,7 +61,7 @@ class FinGuardEnv(Environment):
             self.reward = 0.0
             self.done = True
             self.info = {"error": "Episode already finished"}
-            return self.state(), self.reward, self.done, False, self.info
+            return self.state()
             
         current_tx = self.pending_transactions[0]
         
@@ -111,7 +111,7 @@ class FinGuardEnv(Environment):
         if len(self.pending_transactions) == 0:
             self.done = True
             
-        return self.state(), self.reward, self.done, False, self.info
+        return self.state()
         
     def state(self) -> FinGuardObservation:
         """Returns the current observation payload."""
