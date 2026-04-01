@@ -5,12 +5,6 @@ from models import Transaction, Receipt, FinGuardObservation, FinGuardAction
 
 logger = logging.getLogger(__name__)
 
-@dataclass
-class StepResult:
-    observation: FinGuardObservation
-    reward: float
-    done: bool
-    info: dict
 
 class FinGuardEnv:
     def __init__(self):
@@ -24,9 +18,11 @@ class FinGuardEnv:
         self.pending_transactions = []
         self.completed_transactions = []
         self.score = 0.0
+        self.reward = 0.0
         self.done = False
+        self.info = {}
         
-    def reset(self) -> StepResult:
+    def reset(self) -> FinGuardObservation:
         """Initialize the messy state for a new episode."""
         # Simple hardcoded dummy scenario fulfilling basic Easy/Medium/Hard requirements
         self.all_receipts = [
@@ -52,55 +48,60 @@ class FinGuardEnv:
         
         self.completed_transactions = []
         self.score = 0.0
+        self.reward = 0.0
         self.done = False
-        return StepResult(observation=self.state(), reward=0.0, done=self.done, info={"msg": "Environment reset"})
+        self.info = {"msg": "Environment reset"}
+        return self.state()
         
-    def step(self, action: FinGuardAction) -> StepResult:
+    def step(self, action: FinGuardAction) -> FinGuardObservation:
         """Process action, calculate partial rewards, update state."""
         if self.done or not self.pending_transactions:
-            return StepResult(observation=self.state(), reward=0.0, done=True, info={"error": "Episode already finished"})
+            self.reward = 0.0
+            self.done = True
+            self.info = {"error": "Episode already finished"}
+            return self.state()
             
         current_tx = self.pending_transactions[0]
         
         # Guard clause: ensure action targets current transaction
         if action.transaction_id != current_tx.id:
-            reward = -1.0 # Penalty for processing wrong transaction out-of-order
-            info = {"msg": "Transaction ID mismatch."}
+            self.reward = -1.0 # Penalty for processing wrong transaction out-of-order
+            self.info = {"msg": "Transaction ID mismatch."}
             
         else:
-            reward = 0.0
-            info = {}
+            self.reward = 0.0
+            self.info = {}
             
             # --- Reward Logic ---
             if action.action_type == "match":
                 if current_tx.is_policy_violation:
                     # Penalize matching a violation; forces policy compliance
-                    reward = -1.0
-                    info = {"msg": "False Match: Ignored policy violation. Should have escalated."}
+                    self.reward = -1.0
+                    self.info = {"msg": "False Match: Ignored policy violation. Should have escalated."}
                 elif current_tx.correct_receipt_id == action.receipt_id and current_tx.correct_receipt_id is not None:
-                    reward = 1.0 # Correct Match
-                    info = {"msg": "Correct Match (Non-violation)"}
+                    self.reward = 1.0 # Correct Match
+                    self.info = {"msg": "Correct Match (Non-violation)"}
                 else:
-                    reward = -1.0 # False Match
-                    info = {"msg": "False Match: Incorrect receipt ID or missing receipt entirely."}
+                    self.reward = -1.0 # False Match
+                    self.info = {"msg": "False Match: Incorrect receipt ID or missing receipt entirely."}
                     
             elif action.action_type == "flag_missing":
                 if current_tx.correct_receipt_id is None and not current_tx.is_ambiguous:
-                    reward = 1.0 # Correct Flag Missing
-                    info = {"msg": "Correct Flag Missing"}
+                    self.reward = 1.0 # Correct Flag Missing
+                    self.info = {"msg": "Correct Flag Missing"}
                 else:
-                    reward = -1.0 # Incorrect Flag
-                    info = {"msg": "False Flag: Receipt exists or should have escalated."}
+                    self.reward = -1.0 # Incorrect Flag
+                    self.info = {"msg": "False Flag: Receipt exists or should have escalated."}
                     
             elif action.action_type == "escalate":
                 if current_tx.is_policy_violation or current_tx.is_ambiguous:
-                    reward = 0.8 # Correct Escalation
-                    info = {"msg": "Correct Escalation for Policy Violation or Ambiguity"}
+                    self.reward = 0.8 # Correct Escalation
+                    self.info = {"msg": "Correct Escalation for Policy Violation or Ambiguity"}
                 else:
-                    reward = -0.2 # Unnecessary Escalation
-                    info = {"msg": "Unnecessary Escalation (Cost of human time)"}
+                    self.reward = -0.2 # Unnecessary Escalation
+                    self.info = {"msg": "Unnecessary Escalation (Cost of human time)"}
                     
-            self.score += reward
+            self.score += self.reward
             # Advance transaction
             self.completed_transactions.append(self.pending_transactions.pop(0))
             
@@ -108,7 +109,7 @@ class FinGuardEnv:
         if len(self.pending_transactions) == 0:
             self.done = True
             
-        return StepResult(observation=self.state(), reward=reward, done=self.done, info=info)
+        return self.state()
         
     def state(self) -> FinGuardObservation:
         """Returns the current observation payload."""

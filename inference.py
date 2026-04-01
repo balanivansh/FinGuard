@@ -27,7 +27,7 @@ def main():
 
     # Initialize Environment
     env = FinGuardEnv()
-    step_result = env.reset()
+    observation = env.reset()
     logger.info("Environment initialized.")
 
     action_log = []
@@ -43,9 +43,7 @@ def main():
         '{"action_type": "match"|"flag_missing"|"escalate", "transaction_id": "...", "receipt_id": "..." (optional), "reason": "..." (optional)}\n'
     )
 
-    while not step_result.done:
-        observation = step_result.observation
-        
+    while not env.done:
         # Prepare context for the prompt
         user_prompt = f"Current State:\n{observation.model_dump_json(indent=2)}\n\nWhat is your action?"
 
@@ -89,14 +87,14 @@ def main():
             logger.info(f"Auditor chose action: {action.action_type} for TX {action.transaction_id}")
             
             # Step the environment
-            step_result = env.step(action)
-            logger.info(f"Step Result: Reward={step_result.reward}, Info={step_result.info}")
+            observation = env.step(action)
+            logger.info(f"Step Result: Reward={env.reward}, Info={env.info}")
             
             action_log.append({
                 "transaction_id": action.transaction_id,
                 "action": action.action_type,
-                "reward": step_result.reward,
-                "info": step_result.info
+                "reward": env.reward,
+                "info": env.info
             })
 
         except Exception as e:
