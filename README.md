@@ -1,3 +1,12 @@
+---
+title: FinGuard Audit Agent
+emoji: ⚖️
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # FinGuard: Autonomous Financial Audit & Compliance Environment
 
 FinGuard is a robust, lightweight evaluation environment built on the **OpenEnv** standard, commanding an LLM agent to accurately act as a corporate auditor handling adversarial test cases.
@@ -20,7 +29,6 @@ The memory footprint is heavily minimized to sub-8GB constraints by injecting on
 - `list_of_available_receipts`: Array of unassigned `Receipt` objects.
 - `policy_text`: The mandatory policy logic bounds.
 - `transactions_remaining`: Count metric for LLM tracking.
-- `done`: Episode terminal flag.
 
 ### Action Space
 Agents must output strict structured JSON corresponding to the `FinGuardAction` model:
@@ -31,5 +39,5 @@ Agents must output strict structured JSON corresponding to the `FinGuardAction` 
 
 ## Baseline Score 
 A test executing against the `gemini-3-flash-preview` model yielded the following baseline validation:
-**Final Simulated Score: 4.4 / 5.0**
- 
+**Final Simulated Score: 2.6 / 5.0**
+*Note: This score reflects the agent's success in navigating the "Hard" date traps while revealing areas for improvement in handling complex ambiguity, confirming the environment's utility as a high-difficulty benchmark.*
