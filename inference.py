@@ -29,6 +29,7 @@ def main():
     env = FinGuardEnv()
     observation = env.reset()
     logger.info("Environment initialized.")
+    print("[START] task=finguard_audit", flush=True)
 
     action_log = []
 
@@ -96,10 +97,16 @@ def main():
                 "reward": observation.reward,
                 "info": observation.info
             })
+            
+            # Structured output for validator
+            print(f"[STEP] step={len(action_log)} reward={observation.reward}", flush=True)
 
         except Exception as e:
             logger.error(f"Error during parsing or step: {e}")
             break
+
+    # Structured output for validator
+    print(f"[END] task=finguard_audit score={round(env.score, 2)} steps={len(action_log)}", flush=True)
 
     # Final Summary
     print(f"Final Score: {round(env.score, 2)}")
