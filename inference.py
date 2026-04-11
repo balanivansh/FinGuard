@@ -11,19 +11,17 @@ logger = logging.getLogger(__name__)
 
 def main():
     # Load configuration
-    API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
-    api_base_url = os.getenv("API_BASE_URL")
-    model_name = os.getenv("MODEL_NAME", "gemini-3-flash-preview")
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+    MODEL_NAME = os.getenv("MODEL_NAME", "gemini-3-flash-preview")
+    HF_TOKEN = os.getenv("HF_TOKEN")
+    # Optional - if you use from_docker_image():
+    LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 
-    if not API_KEY:
-        logger.warning("No API key environment variable found. OpenAI calls will fail if not authenticated.")
+    if not HF_TOKEN:
+        logger.warning("No HF_TOKEN found. OpenAI calls will fail if not authenticated.")
 
     # Initialize OpenAI Client
-    client_kwargs = {"api_key": API_KEY}
-    if api_base_url:
-        client_kwargs["base_url"] = api_base_url
-        
-    client = OpenAI(**client_kwargs)
+    client = OpenAI(api_key=HF_TOKEN, base_url=API_BASE_URL)
 
     # Initialize Environment
     env = FinGuardEnv()
@@ -56,7 +54,7 @@ def main():
             try:
                 # Call LLM
                 response = client.chat.completions.create(
-                    model=model_name,
+                    model=MODEL_NAME,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
