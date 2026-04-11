@@ -11,15 +11,15 @@ logger = logging.getLogger(__name__)
 
 def main():
     # Load configuration
-    api_key = os.getenv("HF_TOKEN") or os.getenv("OPENAI_API_KEY")
+    API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
     api_base_url = os.getenv("API_BASE_URL")
     model_name = os.getenv("MODEL_NAME", "gemini-3-flash-preview")
 
-    if not api_key:
+    if not API_KEY:
         logger.warning("No API key environment variable found. OpenAI calls will fail if not authenticated.")
 
     # Initialize OpenAI Client
-    client_kwargs = {"api_key": api_key}
+    client_kwargs = {"api_key": API_KEY}
     if api_base_url:
         client_kwargs["base_url"] = api_base_url
         
