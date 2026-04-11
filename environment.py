@@ -24,29 +24,49 @@ class FinGuardEnv(Environment):
         self.done = False
         self.info = {}
         
-    def reset(self, *args, **kwargs):
-        """Initialize the messy state for a new episode."""
-        # Simple hardcoded dummy scenario fulfilling basic Easy/Medium/Hard requirements
-        self.all_receipts = [
-            Receipt(id="R001", date="2026-04-01", amount=25.00, vendor="Uber for Business", details="Trip: John F Kennedy Airport to Downtown"),
-            Receipt(id="R002", date="2026-04-02", amount=1200.00, vendor="APL*APPLE STORE", details="MacBook Pro 15-inch repair service"),
-            Receipt(id="R003", date="2026-04-03", amount=45.00, vendor="Starbucks Store #12344", details="Coffee and Sandwiches"),
-            Receipt(id="R004-TRAP", date="2026-04-04", amount=99.99, vendor="AWS Cloud Services", details="AWS EMEA SARL - Monthly Invoice"),
-            Receipt(id="R005-DATE", date="2026-04-05", amount=350.00, vendor="Hilton Hotels Worldwide", details="1 Night Stay - King Room")
-        ]
+    def reset(self, task_id: str = "finguard_basic", *args, **kwargs):
+        """Initialize the messy state for a new episode based on task_id."""
+        self.task_id = task_id
         
-        self.pending_transactions = [
-            # Easy: Perfect match with noisy vendor string
-            Transaction(id="T001", date="2026-04-01", amount=25.00, vendor="UBER   *TRIP 12345", description="TRANSPORTATION / TAXI", correct_receipt_id="R001"),
-            # Medium: Missing receipt
-            Transaction(id="T002", date="2026-04-02", amount=15.00, vendor="DELTA AIR 006231", description="TRAVEL IN-FLIGHT WIFI", correct_receipt_id=None),
-            # Medium/Hard: Policy violation (Hardware -> needs escalation)
-            Transaction(id="T003", date="2026-04-02", amount=1200.00, vendor="APL*APPLE ITUNES STORE 800-676-2775 CA", description="ELECTRONIC HARDWARE", correct_receipt_id="R002", is_policy_violation=True),
-            # Hard: Trap/Ambiguous case
-            Transaction(id="T004", date="2026-04-04", amount=99.99, vendor="AMZN MKTP US *2X99", description="OFFICE SUPPLIES", correct_receipt_id=None, is_ambiguous=True),
-            # Hard: Date off by one day
-            Transaction(id="T005", date="2026-04-06", amount=350.00, vendor="HILTON HOTELS INTL", description="LODGING / HOTEL", correct_receipt_id=None, is_ambiguous=True)
-        ]
+        if task_id == "finguard_basic":
+            self.all_receipts = [
+                Receipt(id="R001", date="2026-04-01", amount=25.00, vendor="Uber for Business", details="Trip: JFK to Downtown"),
+                Receipt(id="R003", date="2026-04-03", amount=45.00, vendor="Starbucks #12344", details="Coffee and Sandwiches")
+            ]
+            self.pending_transactions = [
+                Transaction(id="T001", date="2026-04-01", amount=25.00, vendor="UBER   *TRIP 12345", description="TRANSPORTATION", correct_receipt_id="R001"),
+                Transaction(id="T002", date="2026-04-03", amount=15.00, vendor="DELTA AIR 006231", description="IN-FLIGHT WIFI", correct_receipt_id=None)
+            ]
+            
+        elif task_id == "finguard_compliance":
+            # Focus on Policy Rules (Hardware, Meal limits)
+            self.all_receipts = [
+                Receipt(id="R002", date="2026-04-02", amount=1200.00, vendor="Apple Store", details="MacBook repair"),
+                Receipt(id="R004", date="2026-04-04", amount=65.00, vendor="Ruth's Chris", details="Dinner with client")
+            ]
+            self.pending_transactions = [
+                # Hardware -> must escalate
+                Transaction(id="T003", date="2026-04-02", amount=1200.00, vendor="APL*APPLE ITUNES", description="HARDWARE", correct_receipt_id="R002", is_policy_violation=True),
+                # Meal > $50 -> must escalate
+                Transaction(id="T004", date="2026-04-04", amount=65.00, vendor="RUTHS CHRIS STEAK", description="MEALS / DINING", correct_receipt_id="R004", is_policy_violation=True)
+            ]
+            
+        elif task_id == "finguard_adversarial":
+            # Focus on ambiguity and date mismatches
+            self.all_receipts = [
+                Receipt(id="R005", date="2026-04-05", amount=350.00, vendor="Hilton Hotels", details="1 Night Stay"),
+                Receipt(id="R006", date="2026-04-06", amount=99.99, vendor="AWS Cloud", details="Monthly Invoice")
+            ]
+            self.pending_transactions = [
+                # Date mismatch (off by one) -> should escalate
+                Transaction(id="T005", date="2026-04-06", amount=350.00, vendor="HILTON HOTELS INTL", description="LODGING", correct_receipt_id=None, is_ambiguous=True),
+                # Vendor trap (AMZN vs AWS) -> should escalate
+                Transaction(id="T006", date="2026-04-06", amount=99.99, vendor="AMZN MKTP US", description="OFFICE SUPPLIES", correct_receipt_id=None, is_ambiguous=True)
+            ]
+        else:
+            # Default fallback to original dummy scenario
+            self.all_receipts = [Receipt(id="R_DUMMY", date="2026-01-01", amount=1.0, vendor="DUMMY", details="DUMMY")]
+            self.pending_transactions = [Transaction(id="T_DUMMY", date="2026-01-01", amount=1.0, vendor="DUMMY", description="DUMMY", correct_receipt_id="R_DUMMY")]
         
         self.completed_transactions = []
         self.score = 0.0
